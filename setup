@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -e
+
+TOOLBOX_NAME="my-toolbx"
+
+# setaf/setab capabilities
+#
+#  Color      #define       Value        RGB
+# ────────────────────────────────────────────────
+# black     COLOR_BLACK       0     0,   0,   0
+# red       COLOR_RED         1     max, 0,   0
+# green     COLOR_GREEN       2     0,   max, 0
+# yellow    COLOR_YELLOW      3     max, max, 0
+# blue      COLOR_BLUE        4     0,   0,   max
+# magenta   COLOR_MAGENTA     5     max, 0,   max
+# cyan      COLOR_CYAN        6     0,   max, max
+# white     COLOR_WHITE       7     max, max, max
+
+# Safely get tput capabilities with fallback to empty strings
+if ! DIM=$(tput dim 2>/dev/null); then DIM=""; fi
+if ! RESET=$(tput sgr0 2>/dev/null); then RESET=""; fi
+if ! RED=$(tput setaf 1 2>/dev/null); then RED=""; fi
+if ! GREEN=$(tput setaf 2 2>/dev/null); then GREEN=""; fi
+
+log_step() {
+    echo "${GREEN}→${RESET} $1"
+}
+
+log_error() {
+    echo "${RED}✘${RESET} $1"
+}
+
+run_cmd() {
+    echo ""
+    echo "    ${DIM}(${GREEN}$1${RESET})"
+
+    # Merge stdout and stderr, indent each line, and dim the '>'
+    if ! eval "$1" 2>&1 | sed "s/^/    ${DIM}> ${RESET}/"; then
+        log_error "$2"
+        return 1
+    fi
+
+    echo ""
+}
+
+# Check for any container (running or stopped) with the given name
+if podman ps -a --format '{{.Names}}' | grep -qF "$TOOLBOX_NAME"; then
+    log_step "Removing existing toolbox container with same name..."
+
+    # Only attempt to stop if the container is running
+    if podman ps --format '{{.Names}}' | grep -qF "$TOOLBOX_NAME"; then
+        run_cmd "podman stop $TOOLBOX_NAME" "Couldn't stop container."
+    fi
+
+    run_cmd "toolbox rm $TOOLBOX_NAME" "Couldn't remove container."
+fi
+
+log_step "Building new image..."
+run_cmd "podman build -t \"$TOOLBOX_NAME\" ." "Couldn't build image."
+
+log_step "Creating toolbox..."
+run_cmd "toolbox create --image \"$TOOLBOX_NAME\" \"$TOOLBOX_NAME\"" "Couldn't create toolbox."
