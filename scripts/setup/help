@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+export DESCRIPTION="Show help information for setup commands."
+export USAGE="help [command]"
+
+main() {
+    source ./_common
+
+    SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    if [[ -n "$1" ]]; then
+        cmd="$1"
+        script="$SCRIPTS_DIR/$cmd"
+
+        if [[ ! -f "$script" || "$cmd" == _* ]]; then
+            log_error "Unknown command: $cmd"
+            exit 1
+        fi
+
+        eval "$(
+            # shellcheck disable=SC1090
+            source "$script" 2>/dev/null
+            declare -p DESCRIPTION USAGE HELP 2>/dev/null
+        )"
+
+        echo ""
+        echo "  ${GREEN}setup ${USAGE}${RESET}"
+        echo ""
+        [[ -n "$DESCRIPTION" ]] && echo "  $DESCRIPTION" && echo ""
+        [[ -n "$HELP" ]] && echo "$HELP" && echo ""
+    else
+        echo ""
+        echo "  ${GREEN}Usage:${RESET} setup <command>"
+        echo ""
+        echo "  ${GREEN}Commands:${RESET}"
+        echo ""
+        for script in "$SCRIPTS_DIR"/*; do
+            cmd="$(basename "$script")"
+            [[ "$cmd" == _* ]] && continue
+            desc=$(
+                # shellcheck disable=SC1090
+                source "$script" 2>/dev/null
+                echo "$DESCRIPTION"
+            )
+            printf "    %-16s %s\n" "$cmd" "$desc"
+        done
+        echo ""
+    fi
+}
+
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"

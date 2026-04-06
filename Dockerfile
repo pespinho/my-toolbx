@@ -14,6 +14,7 @@ RUN dnf -y install \
     lazygit \
     neovim \
     starship \
+    stow \
     tmux \
     && dnf clean all
 

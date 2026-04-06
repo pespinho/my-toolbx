@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+export DESCRIPTION="Build and recreate the toolbox container."
+export USAGE="toolbox"
+
+main() {
+    set -e
+    TOOLBOX_NAME="my-toolbx"
+
+    source ./_common
+
+    # Check for any container (running or stopped) with the given name
+    if podman ps -a --format '{{.Names}}' | grep -qF "$TOOLBOX_NAME"; then
+        log_step "Removing existing toolbox container with same name..."
+
+        # Only attempt to stop if the container is running
+        if podman ps --format '{{.Names}}' | grep -qF "$TOOLBOX_NAME"; then
+            run_cmd "podman stop $TOOLBOX_NAME" "Couldn't stop container."
+        fi
+
+        run_cmd "toolbox rm $TOOLBOX_NAME" "Couldn't remove container."
+    fi
+
+    log_step "Building new image..."
+    run_cmd "podman build -t \"$TOOLBOX_NAME\" ." "Couldn't build image."
+
+    log_step "Creating toolbox..."
+    run_cmd "toolbox create --image \"$TOOLBOX_NAME\" \"$TOOLBOX_NAME\"" "Couldn't create toolbox."
+
+}
+
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"

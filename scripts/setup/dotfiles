@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+export DESCRIPTION="Stow dotfiles into the home directory."
+export USAGE="dotfiles"
+
+main() {
+    set -e
+    source ./_common
+
+    log_step "Stowing dotfiles..."
+
+    run_cmd "stow --target=$HOME --dir=$REPO_ROOT -v dotfiles" "Failed to create symlinks for dotfiles."
+
+    if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+        log_step "Installing tpm (tmux plugin manager)..."
+        run_cmd "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm" "Failed to install tpm."
+    fi
+
+    if ! grep -qF ".bashrc.d" "$HOME/.bashrc"; then
+        log_warning "It looks like your .bashrc doesn't source .bashrc.d/*.sh files. \n\
+        You may want to add the following lines to your .bashrc to ensure toolbox configuration is loaded: \n\n\
+        ${GREEN}if [ -d \"\$HOME/.bashrc.d\" ]; then\n \
+            for rc in \"\$HOME/.bashrc.d\"/*.sh; do\n \
+                [ -f \"\$rc\" ] && source \"\$rc\"\n \
+            done\n \
+        fi${RESET}\n"
+    fi
+}
+
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"

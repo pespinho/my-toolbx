@@ -17,10 +17,10 @@ essential development tools and utilities.
    cd toolbx
    ```
 
-2. Run the setup script:
+2. Build and create the toolbox container:
 
    ```bash
-   ./setup
+   ./setup toolbox
    ```
 
 3. Enter your new toolbox:
@@ -28,3 +28,14 @@ essential development tools and utilities.
    ```bash
    toolbox enter my-toolbx
    ```
+
+4. Stow dotfiles into your home directory:
+
+   ```bash
+   ./setup dotfiles
+   ```
+
+## Commands
+
+Run `./setup help` for a full list of available commands, or `./setup help <command>`
+for detailed help on a specific command.
