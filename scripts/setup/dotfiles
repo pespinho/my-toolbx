@@ -13,7 +13,7 @@ main() {
 
     if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
         log_step "Installing tpm (tmux plugin manager)..."
-        run_cmd "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm" "Failed to install tpm."
+        run_cmd "git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm" "Failed to install tpm."
     fi
 
     if ! grep -qF ".bashrc.d" "$HOME/.bashrc"; then
