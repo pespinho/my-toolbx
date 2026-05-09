@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora-toolbox:43
+FROM registry.fedoraproject.org/fedora-toolbox:44
 
 # Enable COPR repositories
 RUN dnf -y copr enable atim/starship && \
@@ -7,6 +7,7 @@ RUN dnf -y copr enable atim/starship && \
 
 RUN dnf -y install \
     bind-utils \
+    borgbackup \
     btop \
     dnf-utils \
     ghostty \
@@ -16,6 +17,7 @@ RUN dnf -y install \
     starship \
     stow \
     tmux \
+    uv \
     && dnf clean all
 
 CMD ["bash"]
