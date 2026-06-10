@@ -22,7 +22,7 @@ main() {
     fi
 
     log_step "Building new image..."
-    run_cmd "podman build -t \"$TOOLBOX_NAME\" ." "Couldn't build image."
+    run_cmd "podman build -t \"$TOOLBOX_NAME\" ../.." "Couldn't build image."
 
     log_step "Creating toolbox..."
     run_cmd "toolbox create --image \"$TOOLBOX_NAME\" \"$TOOLBOX_NAME\"" "Couldn't create toolbox."
