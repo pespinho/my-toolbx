@@ -10,10 +10,13 @@ RUN dnf -y install \
     borgbackup \
     btop \
     dnf-utils \
+    fastfetch \
     ghostty \
     golang \
+    graphviz \
     lazygit \
     neovim \
+    perl-Graph-Easy \
     starship \
     stow \
     tmux \
